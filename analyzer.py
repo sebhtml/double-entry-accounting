@@ -36,6 +36,15 @@ class Transaction:
         return self.modifier
     def isApproved(self):
         return self.approved
+    def __str__(self):
+        date = "<" + self.getDate() + ">"
+        description = self.getDescription()
+        destinationAccount = self.getDestinationAccount()
+        sourceAccount = self.getSourceAccount()
+        amount = self.getAmount()
+        currency = self.getCurrency()
+        output = "  %-15s %-20s %-30s %-30s %10.2f %10s" % (date, description, destinationAccount, sourceAccount, amount, currency)
+        return output
     def isBad(self):
         return self.bad
     def makeVirtualSelfTransaction(self):
@@ -157,9 +166,10 @@ def main(arguments):
                             continue
                         transactions.append(transaction)
 
-    sorted(transactions, key=lambda transaction: transaction.getDate())
+    transactions = sorted(transactions, key=lambda transaction: transaction.getDate())
 
     for transaction in transactions:
+        #print("DEBUG " + str(transaction))
         processTransaction(transaction, True, accountFactory)
 
     print("Transactions")
@@ -173,13 +183,7 @@ def main(arguments):
         print(transactionString % ("Date", "Description", "DestinationAccount", "SourceAccount", "Amount", "Currency"))
 
         for transaction in account.getTransactions():
-            date = transaction.getDate()
-            description = transaction.getDescription()
-            destinationAccount = transaction.getDestinationAccount()
-            sourceAccount = transaction.getSourceAccount()
-            amount = transaction.getAmount()
-
-            print("  %-15s %-20s %-30s %-30s %10.2f %10s" % (date, description, destinationAccount, sourceAccount, amount, currency))
+            print(transaction)
         print("")
 
 
