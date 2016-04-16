@@ -147,8 +147,12 @@ def main(arguments):
                         transaction = transactionFactory.makeTransaction(line)
                         if transaction.isBad():
                             continue
+                        transactions.append(transaction)
 
-                        processTransaction(transaction, True, accountFactory)
+    sorted(transactions, key=lambda transaction: transaction.getDate())
+
+    for transaction in transactions:
+        processTransaction(transaction, True, accountFactory)
 
     print("Transactions")
     print("")
