@@ -41,14 +41,14 @@ class Transaction:
         transaction = copy.copy(self)
         transaction.amount = (1 - self.getModifier()) * self.getAmount()
         transaction.modifier = 1
-        transaction.destinationAccount = "virt-" + self.getSourceAccount() + "-destination-self"
+        transaction.destinationAccount = "virt-" + self.getSourceAccount() + "-self-destination"
         transaction.sourceAccount = "virt-" + self.getSourceAccount() + "-source"
         return transaction
     def makeVirtualOtherTransaction(self):
         transaction = copy.copy(self)
         transaction.amount = self.getModifier() * self.getAmount()
         transaction.modifier = 1
-        transaction.destinationAccount = "virt-" + self.getSourceAccount() + "-destination-other"
+        transaction.destinationAccount = "virt-" + self.getSourceAccount() + "-other-destination"
         transaction.sourceAccount = "virt-" + self.getSourceAccount() + "-source"
         return transaction
 
@@ -113,7 +113,7 @@ class AccountFactory:
             accounts.append(self.accounts[i])
         return accounts
 
-def processTransaction(transaction, makeVirtualTransaction, accountFactory):
+def processTransaction(transaction, makeVirtualTransactions, accountFactory):
     destinationAccount = transaction.getDestinationAccount()
     sourceAccount = transaction.getSourceAccount()
 
@@ -122,7 +122,7 @@ def processTransaction(transaction, makeVirtualTransaction, accountFactory):
         accountFactory.getAccount(destinationAccount, currency).addTransaction(transaction)
         accountFactory.getAccount(sourceAccount, currency).addTransaction(transaction)
 
-        if not makeVirtualTransaction:
+        if not makeVirtualTransactions:
             return
 
         virtualSelfTransaction = transaction.makeVirtualSelfTransaction()
@@ -155,7 +155,7 @@ def main(arguments):
     for account in accountFactory.getAccounts():
         name = account.getName()
         currency = account.getCurrency()
-        print("account: " + name + "        currency: " + currency)
+        print("Account: " + name + "        Currency: " + currency + "     Transactions: " + str(len(account.getTransactions())))
 
         transactionString = "  %-15s %-20s %-30s %-30s %10s %10s"
         print(transactionString % ("Date", "Description", "DestinationAccount", "SourceAccount", "Amount", "Currency"))
@@ -174,12 +174,29 @@ def main(arguments):
     print("Balances")
     #print("")
     print("%-30s %10s %10s" % ("Account", "Amount", "Currency"))
-    for account in accountFactory.getAccounts():
+
+    accounts = accountFactory.getAccounts()
+    for account in accounts:
         name = account.getName()
         balance = account.getBalance()
         currency = account.getCurrency()
 
         print("%-30s %10.2f %10s" % (name, balance, currency))
+    print("")
+    print("Balances")
+    for account1 in accounts:
+        for account2 in accounts:
+            if account1.getCurrency() == account2.getCurrency():
+                name1 = account1.getName()
+                name2 = account2.getName()
+                currency = account1.getCurrency()
+                if name1 == name2:
+                    continue
+                if name1.find("other-destination") >= 0 and name2.find("other-destination") >= 0:
+                    balance1 = account1.getBalance()
+                    balance2 = account2.getBalance()
+                    metaBalance = balance1 - balance2
+                    print("balance(%s) - balance(%s) = %10.2f %10s" % (name1, name2, metaBalance, currency))
 
 
 main(sys.argv)
