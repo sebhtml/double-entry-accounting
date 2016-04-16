@@ -33,23 +33,25 @@ class Transaction:
         return self.description
     def getModifier(self):
         return self.modifier
-    def getApproved(self):
+    def isApproved(self):
         return self.approved
     def isBad(self):
         return self.bad
     def makeVirtualSelfTransaction(self):
+        prefix = "virtual:"
         transaction = copy.copy(self)
         transaction.amount = (1 - self.getModifier()) * self.getAmount()
         transaction.modifier = 1
-        transaction.destinationAccount = "virt-" + self.getSourceAccount() + "-self-destination"
-        transaction.sourceAccount = "virt-" + self.getSourceAccount() + "-source"
+        transaction.destinationAccount = prefix + self.getSourceAccount() + ":self"
+        transaction.sourceAccount = prefix + self.getSourceAccount() + ""
         return transaction
     def makeVirtualOtherTransaction(self):
+        prefix = "virtual:"
         transaction = copy.copy(self)
         transaction.amount = self.getModifier() * self.getAmount()
         transaction.modifier = 1
-        transaction.destinationAccount = "virt-" + self.getSourceAccount() + "-other-destination"
-        transaction.sourceAccount = "virt-" + self.getSourceAccount() + "-source"
+        transaction.destinationAccount = prefix + self.getSourceAccount() + ":other"
+        transaction.sourceAccount = prefix + self.getSourceAccount() + ""
         return transaction
 
 
@@ -145,7 +147,7 @@ def main(arguments):
                     firstCharacter = line[0]
                     if firstCharacter != '#' and len(line.strip()) > 0:
                         transaction = transactionFactory.makeTransaction(line)
-                        if transaction.isBad():
+                        if transaction.isBad() or not transaction.isApproved():
                             continue
                         transactions.append(transaction)
 
@@ -196,11 +198,18 @@ def main(arguments):
                 currency = account1.getCurrency()
                 if name1 == name2:
                     continue
-                if name1.find("other-destination") >= 0 and name2.find("other-destination") >= 0:
-                    balance1 = account1.getBalance()
-                    balance2 = account2.getBalance()
-                    metaBalance = balance1 - balance2
-                    print("balance(%s) - balance(%s) = %10.2f %10s" % (name1, name2, metaBalance, currency))
+		if not name1.find("virtual:") >= 0:
+                    continue
+		if not name1.find(":other") >= 0:
+                    continue
+		if not name2.find("virtual:") >= 0:
+                    continue
+		if not name2.find(":other") >= 0:
+                    continue
+                balance1 = account1.getBalance()
+                balance2 = account2.getBalance()
+                metaBalance = balance1 - balance2
+                print("balance(%s) - balance(%s) = %10.2f %10s" % (name1, name2, metaBalance, currency))
 
 
 main(sys.argv)

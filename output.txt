@@ -21,60 +21,60 @@ Account: vendor-123        Currency: USD     Transactions: 6
   2013-08-25      Payment 3- Foo       vendor-123                     foo                              11581.53        USD
   2013-08-25      Payment 3- Bar       vendor-123                     bar                               7000.00        USD
 
-Account: virt-bar-other-destination        Currency: USD     Transactions: 3
+Account: virtual:bar        Currency: USD     Transactions: 6
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Bar       virt-bar-other-destination     virt-bar-source                   3000.00        USD
-  2012-09-17      Payment 2- Bar       virt-bar-other-destination     virt-bar-source                   6000.00        USD
-  2013-08-25      Payment 3- Bar       virt-bar-other-destination     virt-bar-source                   3500.00        USD
+  2012-04-14      Payment 1- Bar       virtual:bar:self               virtual:bar                       3000.00        USD
+  2012-04-14      Payment 1- Bar       virtual:bar:other              virtual:bar                       3000.00        USD
+  2012-09-17      Payment 2- Bar       virtual:bar:self               virtual:bar                       6000.00        USD
+  2012-09-17      Payment 2- Bar       virtual:bar:other              virtual:bar                       6000.00        USD
+  2013-08-25      Payment 3- Bar       virtual:bar:self               virtual:bar                       3500.00        USD
+  2013-08-25      Payment 3- Bar       virtual:bar:other              virtual:bar                       3500.00        USD
 
-Account: virt-bar-self-destination        Currency: USD     Transactions: 3
+Account: virtual:bar:other        Currency: USD     Transactions: 3
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Bar       virt-bar-self-destination      virt-bar-source                   3000.00        USD
-  2012-09-17      Payment 2- Bar       virt-bar-self-destination      virt-bar-source                   6000.00        USD
-  2013-08-25      Payment 3- Bar       virt-bar-self-destination      virt-bar-source                   3500.00        USD
+  2012-04-14      Payment 1- Bar       virtual:bar:other              virtual:bar                       3000.00        USD
+  2012-09-17      Payment 2- Bar       virtual:bar:other              virtual:bar                       6000.00        USD
+  2013-08-25      Payment 3- Bar       virtual:bar:other              virtual:bar                       3500.00        USD
 
-Account: virt-bar-source        Currency: USD     Transactions: 6
+Account: virtual:bar:self        Currency: USD     Transactions: 3
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Bar       virt-bar-self-destination      virt-bar-source                   3000.00        USD
-  2012-04-14      Payment 1- Bar       virt-bar-other-destination     virt-bar-source                   3000.00        USD
-  2012-09-17      Payment 2- Bar       virt-bar-self-destination      virt-bar-source                   6000.00        USD
-  2012-09-17      Payment 2- Bar       virt-bar-other-destination     virt-bar-source                   6000.00        USD
-  2013-08-25      Payment 3- Bar       virt-bar-self-destination      virt-bar-source                   3500.00        USD
-  2013-08-25      Payment 3- Bar       virt-bar-other-destination     virt-bar-source                   3500.00        USD
+  2012-04-14      Payment 1- Bar       virtual:bar:self               virtual:bar                       3000.00        USD
+  2012-09-17      Payment 2- Bar       virtual:bar:self               virtual:bar                       6000.00        USD
+  2013-08-25      Payment 3- Bar       virtual:bar:self               virtual:bar                       3500.00        USD
 
-Account: virt-foo-other-destination        Currency: USD     Transactions: 3
+Account: virtual:foo        Currency: USD     Transactions: 6
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Foo       virt-foo-other-destination     virt-foo-source                  15581.53        USD
-  2012-09-17      Payment 2- Foo       virt-foo-other-destination     virt-foo-source                   3290.76        USD
-  2013-08-25      Payment 3- Foo       virt-foo-other-destination     virt-foo-source                   5790.77        USD
+  2012-04-14      Payment 1- Foo       virtual:foo:self               virtual:foo                      15581.53        USD
+  2012-04-14      Payment 1- Foo       virtual:foo:other              virtual:foo                      15581.53        USD
+  2012-09-17      Payment 2- Foo       virtual:foo:self               virtual:foo                       3290.76        USD
+  2012-09-17      Payment 2- Foo       virtual:foo:other              virtual:foo                       3290.76        USD
+  2013-08-25      Payment 3- Foo       virtual:foo:self               virtual:foo                       5790.77        USD
+  2013-08-25      Payment 3- Foo       virtual:foo:other              virtual:foo                       5790.77        USD
 
-Account: virt-foo-self-destination        Currency: USD     Transactions: 3
+Account: virtual:foo:other        Currency: USD     Transactions: 3
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Foo       virt-foo-self-destination      virt-foo-source                  15581.53        USD
-  2012-09-17      Payment 2- Foo       virt-foo-self-destination      virt-foo-source                   3290.76        USD
-  2013-08-25      Payment 3- Foo       virt-foo-self-destination      virt-foo-source                   5790.77        USD
+  2012-04-14      Payment 1- Foo       virtual:foo:other              virtual:foo                      15581.53        USD
+  2012-09-17      Payment 2- Foo       virtual:foo:other              virtual:foo                       3290.76        USD
+  2013-08-25      Payment 3- Foo       virtual:foo:other              virtual:foo                       5790.77        USD
 
-Account: virt-foo-source        Currency: USD     Transactions: 6
+Account: virtual:foo:self        Currency: USD     Transactions: 3
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Foo       virt-foo-self-destination      virt-foo-source                  15581.53        USD
-  2012-04-14      Payment 1- Foo       virt-foo-other-destination     virt-foo-source                  15581.53        USD
-  2012-09-17      Payment 2- Foo       virt-foo-self-destination      virt-foo-source                   3290.76        USD
-  2012-09-17      Payment 2- Foo       virt-foo-other-destination     virt-foo-source                   3290.76        USD
-  2013-08-25      Payment 3- Foo       virt-foo-self-destination      virt-foo-source                   5790.77        USD
-  2013-08-25      Payment 3- Foo       virt-foo-other-destination     virt-foo-source                   5790.77        USD
+  2012-04-14      Payment 1- Foo       virtual:foo:self               virtual:foo                      15581.53        USD
+  2012-09-17      Payment 2- Foo       virtual:foo:self               virtual:foo                       3290.76        USD
+  2013-08-25      Payment 3- Foo       virtual:foo:self               virtual:foo                       5790.77        USD
 
 Balances
 Account                            Amount   Currency
 bar                             -25000.00        USD
 foo                             -49326.12        USD
 vendor-123                       74326.12        USD
-virt-bar-other-destination       12500.00        USD
-virt-bar-self-destination        12500.00        USD
-virt-bar-source                 -25000.00        USD
-virt-foo-other-destination       24663.06        USD
-virt-foo-self-destination        24663.06        USD
-virt-foo-source                 -49326.12        USD
+virtual:bar                     -25000.00        USD
+virtual:bar:other                12500.00        USD
+virtual:bar:self                 12500.00        USD
+virtual:foo                     -49326.12        USD
+virtual:foo:other                24663.06        USD
+virtual:foo:self                 24663.06        USD
 
 Balances
-balance(virt-bar-other-destination) - balance(virt-foo-other-destination) =  -12163.06        USD
-balance(virt-foo-other-destination) - balance(virt-bar-other-destination) =   12163.06        USD
+balance(virtual:bar:other) - balance(virtual:foo:other) =  -12163.06        USD
+balance(virtual:foo:other) - balance(virtual:bar:other) =   12163.06        USD
