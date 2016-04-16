@@ -3,6 +3,7 @@
 import sys
 import os
 import copy
+import datetime
 
 class Transaction:
     def __init__(self, line):
@@ -140,6 +141,9 @@ def main(arguments):
     transactionFactory = TransactionFactory()
     accountFactory = AccountFactory()
 
+    now = datetime.datetime.now()
+    today = now.strftime("%Y-%m-%d")
+
     for i in arguments:
         if os.path.isfile(i):
             for line in open(i):
@@ -148,6 +152,8 @@ def main(arguments):
                     if firstCharacter != '#' and len(line.strip()) > 0:
                         transaction = transactionFactory.makeTransaction(line)
                         if transaction.isBad() or not transaction.isApproved():
+                            continue
+                        if not transaction.getDate() <= today:
                             continue
                         transactions.append(transaction)
 
