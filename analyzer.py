@@ -37,7 +37,7 @@ class Transaction:
     def isApproved(self):
         return self.approved
     def __str__(self):
-        date = "<" + self.getDate() + ">"
+        date = "" + self.getDate() + ""
         description = self.getDescription()
         destinationAccount = self.getDestinationAccount()
         sourceAccount = self.getSourceAccount()
@@ -77,6 +77,8 @@ class Account:
         self.currency = currency
         self.balance = 0
         self.transactions = []
+    def getTransactionCount(self):
+        return len(self.getTransactions())
     def addTransaction(self, transaction):
         if transaction.getCurrency() != self.getCurrency():
             print("Error: wrong currency")
@@ -125,23 +127,27 @@ class AccountFactory:
             accounts.append(self.accounts[i])
         return accounts
 
-def processTransaction(transaction, makeVirtualTransactions, accountFactory):
+def processTransaction(transaction, transactions):
     destinationAccount = transaction.getDestinationAccount()
     sourceAccount = transaction.getSourceAccount()
 
-    currency = transaction.getCurrency()
-    if destinationAccount != sourceAccount:
-        accountFactory.getAccount(destinationAccount, currency).addTransaction(transaction)
-        accountFactory.getAccount(sourceAccount, currency).addTransaction(transaction)
+    #currency = transaction.getCurrency()
 
-        if not makeVirtualTransactions:
-            return
+    if destinationAccount == sourceAccount:
+        print("Error: same account")
+        return
 
-        virtualSelfTransaction = transaction.makeVirtualSelfTransaction()
-        processTransaction(virtualSelfTransaction, False, accountFactory)
+    transactions.append(transaction)
 
-        virtualOtherTransaction = transaction.makeVirtualOtherTransaction()
-        processTransaction(virtualOtherTransaction, False, accountFactory)
+    #if not makeVirtualTransactions:
+        #return
+
+    virtualSelfTransaction = transaction.makeVirtualSelfTransaction()
+
+    virtualOtherTransaction = transaction.makeVirtualOtherTransaction()
+
+    transactions.append(virtualSelfTransaction)
+    transactions.append(virtualOtherTransaction)
 
 
 def main(arguments):
@@ -168,9 +174,41 @@ def main(arguments):
 
     transactions = sorted(transactions, key=lambda transaction: transaction.getDate())
 
+    allTransactions = []
     for transaction in transactions:
         #print("DEBUG " + str(transaction))
-        processTransaction(transaction, True, accountFactory)
+        processTransaction(transaction, allTransactions)
+
+    oldCount = len(transactions)
+    newCount = len(allTransactions)
+
+    #print("oldCount " + str(oldCount) + " newCount: " + str(newCount) + " expected: " + str(3 * oldCount))
+
+    goodTransactions = 0
+    for transaction in allTransactions:
+        destinationAccountName = transaction.getDestinationAccount()
+        sourceAccountName = transaction.getSourceAccount()
+        if destinationAccountName == sourceAccountName:
+            print("Error: same account")
+            continue
+        currency = transaction.getCurrency()
+        destinationAccount = accountFactory.getAccount(destinationAccountName, currency)
+        sourceAccount = accountFactory.getAccount(sourceAccountName, currency)
+        destinationAccountBefore = destinationAccount.getTransactionCount()
+        sourceAccountBefore = sourceAccount.getTransactionCount()
+        destinationAccount.addTransaction(transaction)
+        sourceAccount.addTransaction(transaction)
+        destinationAccountAfter = destinationAccount.getTransactionCount()
+        sourceAccountAfter = sourceAccount.getTransactionCount()
+        if destinationAccountAfter != destinationAccountBefore + 1:
+            print("BUG: " + transaction)
+        #print("before " + str(destinationAccountBefore) + " after " + str(destinationAccountAfter))
+        if sourceAccountAfter != sourceAccountBefore + 1:
+            print("BUG: " + transaction)
+
+        goodTransactions += 1
+
+    #print("DEBUG goodTransactions: " + str(goodTransactions))
 
     print("Transactions")
     print("")
@@ -199,7 +237,7 @@ def main(arguments):
 
         print("%-30s %10.2f %10s" % (name, balance, currency))
     print("")
-    print("Balances")
+    print("Virtual balances")
     for account1 in accounts:
         for account2 in accounts:
             if account1.getCurrency() == account2.getCurrency():
