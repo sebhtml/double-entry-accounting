@@ -215,7 +215,7 @@ def main(arguments):
 
     print("Virtual account transactions")
     print("")
-    for account in accountFactory.getAccounts():
+    for account in virtualAccountFactory.getAccounts():
         account.printTransactions()
 
     print("Account balances")
@@ -258,6 +258,13 @@ def main(arguments):
                 balance1 = account1.getBalance()
                 balance2 = account2.getBalance()
                 metaBalance = balance1 - balance2
+
+                if metaBalance >= 50000:
+                    continue
+                if metaBalance < 0:
+                    continue
+                if metaBalance == 0.00:
+                    continue
                 print("balance(%s) - balance(%s) = %10.2f %10s" % (name1, name2, metaBalance, currency))
 
 
