@@ -47,19 +47,25 @@ class Transaction:
         return output
     def isBad(self):
         return self.bad
-    def makeVirtualSelfTransaction(self):
+    def makeVirtualSelfExpenseTransaction(self):
         transaction = copy.copy(self)
         transaction.amount = (1 - self.getModifier()) * self.getAmount()
         transaction.modifier = 1
         transaction.destinationAccount = self.getSourceAccount() + "+expenses+self"
         transaction.sourceAccount = self.getSourceAccount() + "+expenses"
         return transaction
-    def makeVirtualOtherTransaction(self):
+    def makeVirtualNotSelfExpenseTransaction(self):
         transaction = copy.copy(self)
         transaction.amount = self.getModifier() * self.getAmount()
         transaction.modifier = 1
         transaction.destinationAccount = self.getSourceAccount() + "+expenses+not-self"
         transaction.sourceAccount = self.getSourceAccount() + "+expenses"
+        return transaction
+    def makeVirtualIncomeTransaction(self):
+        transaction = copy.copy(self)
+        transaction.modifier = 1
+        transaction.destinationAccount = self.getDestinationAccount() + "+income"
+        transaction.sourceAccount = self.getDestinationAccount() + "+income-source"
         return transaction
 
 
@@ -140,28 +146,6 @@ class AccountFactory:
             accounts.append(self.accounts[i])
         return accounts
 
-def processTransaction(transaction, transactions):
-    destinationAccount = transaction.getDestinationAccount()
-    sourceAccount = transaction.getSourceAccount()
-
-    #currency = transaction.getCurrency()
-
-    if destinationAccount == sourceAccount:
-        print("Error: same account")
-        return
-
-    transactions.append(transaction)
-
-    #if not makeVirtualTransactions:
-        #return
-
-    virtualSelfTransaction = transaction.makeVirtualSelfTransaction()
-
-    virtualOtherTransaction = transaction.makeVirtualOtherTransaction()
-
-    transactions.append(virtualSelfTransaction)
-    transactions.append(virtualOtherTransaction)
-
 def addTransactions(transactions, factory):
     for transaction in transactions:
         destinationAccountName = transaction.getDestinationAccount()
@@ -202,10 +186,14 @@ def main(arguments):
 
     virtualTransactions = []
     for transaction in transactions:
-        virtualSelfTransaction = transaction.makeVirtualSelfTransaction()
-        virtualOtherTransaction = transaction.makeVirtualOtherTransaction()
+        virtualSelfTransaction = transaction.makeVirtualSelfExpenseTransaction()
         virtualTransactions.append(virtualSelfTransaction)
+
+        virtualOtherTransaction = transaction.makeVirtualNotSelfExpenseTransaction()
         virtualTransactions.append(virtualOtherTransaction)
+
+        virtualIncomeTransaction = transaction.makeVirtualIncomeTransaction()
+        virtualTransactions.append(virtualIncomeTransaction)
 
         #print("DEBUG " + str(transaction))
         #processTransaction(transaction, virtualTransactions)
