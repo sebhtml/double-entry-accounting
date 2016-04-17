@@ -79,6 +79,21 @@ class Account:
         self.transactions = []
     def getTransactionCount(self):
         return len(self.getTransactions())
+    def printTransactions(self):
+        name = self.getName()
+        currency = self.getCurrency()
+        balance = self.getBalance()
+        print("Account: " + name + "    Balance: " + str(balance)+ "    Currency: " + currency + "    Transactions: " + str(self.getTransactionCount()))
+
+        transactionString = "  %-15s %-20s %-30s %-30s %10s %10s"
+        print(transactionString % ("Date", "Description", "DestinationAccount", "SourceAccount", "Amount", "Currency"))
+
+        for transaction in self.getTransactions():
+            print(transaction)
+
+
+        print("")
+
     def addTransaction(self, transaction):
         if transaction.getCurrency() != self.getCurrency():
             print("Error: wrong currency")
@@ -149,12 +164,25 @@ def processTransaction(transaction, transactions):
     transactions.append(virtualSelfTransaction)
     transactions.append(virtualOtherTransaction)
 
+def addTransactions(transactions, factory):
+    for transaction in transactions:
+        destinationAccountName = transaction.getDestinationAccount()
+        sourceAccountName = transaction.getSourceAccount()
+        if destinationAccountName == sourceAccountName:
+            print("Error: same account")
+            continue
+        currency = transaction.getCurrency()
+        destinationAccount = factory.getAccount(destinationAccountName, currency)
+        sourceAccount = factory.getAccount(sourceAccountName, currency)
+        destinationAccount.addTransaction(transaction)
+        sourceAccount.addTransaction(transaction)
 
 def main(arguments):
     transactions = []
 
     transactionFactory = TransactionFactory()
     accountFactory = AccountFactory()
+    virtualAccountFactory = AccountFactory()
 
     now = datetime.datetime.now()
     today = now.strftime("%Y-%m-%d")
@@ -174,58 +202,37 @@ def main(arguments):
 
     transactions = sorted(transactions, key=lambda transaction: transaction.getDate())
 
-    allTransactions = []
+    virtualTransactions = []
     for transaction in transactions:
-        #print("DEBUG " + str(transaction))
-        processTransaction(transaction, allTransactions)
+        virtualSelfTransaction = transaction.makeVirtualSelfTransaction()
+        virtualOtherTransaction = transaction.makeVirtualOtherTransaction()
+        virtualTransactions.append(virtualSelfTransaction)
+        virtualTransactions.append(virtualOtherTransaction)
 
-    oldCount = len(transactions)
-    newCount = len(allTransactions)
+        #print("DEBUG " + str(transaction))
+        #processTransaction(transaction, virtualTransactions)
+
+    #oldCount = len(transactions)
+    #newCount = len(allTransactions)
 
     #print("oldCount " + str(oldCount) + " newCount: " + str(newCount) + " expected: " + str(3 * oldCount))
 
-    goodTransactions = 0
-    for transaction in allTransactions:
-        destinationAccountName = transaction.getDestinationAccount()
-        sourceAccountName = transaction.getSourceAccount()
-        if destinationAccountName == sourceAccountName:
-            print("Error: same account")
-            continue
-        currency = transaction.getCurrency()
-        destinationAccount = accountFactory.getAccount(destinationAccountName, currency)
-        sourceAccount = accountFactory.getAccount(sourceAccountName, currency)
-        destinationAccountBefore = destinationAccount.getTransactionCount()
-        sourceAccountBefore = sourceAccount.getTransactionCount()
-        destinationAccount.addTransaction(transaction)
-        sourceAccount.addTransaction(transaction)
-        destinationAccountAfter = destinationAccount.getTransactionCount()
-        sourceAccountAfter = sourceAccount.getTransactionCount()
-        if destinationAccountAfter != destinationAccountBefore + 1:
-            print("BUG: " + transaction)
-        #print("before " + str(destinationAccountBefore) + " after " + str(destinationAccountAfter))
-        if sourceAccountAfter != sourceAccountBefore + 1:
-            print("BUG: " + transaction)
+    #goodTransactions = 0
 
-        goodTransactions += 1
+    addTransactions(transactions, accountFactory)
+    addTransactions(virtualTransactions, virtualAccountFactory)
 
-    #print("DEBUG goodTransactions: " + str(goodTransactions))
-
-    print("Transactions")
+    print("Account transactions")
     print("")
     for account in accountFactory.getAccounts():
-        name = account.getName()
-        currency = account.getCurrency()
-        print("Account: " + name + "        Currency: " + currency + "     Transactions: " + str(len(account.getTransactions())))
+        account.printTransactions()
 
-        transactionString = "  %-15s %-20s %-30s %-30s %10s %10s"
-        print(transactionString % ("Date", "Description", "DestinationAccount", "SourceAccount", "Amount", "Currency"))
+    print("Virtual account transactions")
+    print("")
+    for account in accountFactory.getAccounts():
+        account.printTransactions()
 
-        for transaction in account.getTransactions():
-            print(transaction)
-        print("")
-
-
-    print("Balances")
+    print("Account balances")
     #print("")
     print("%-30s %10s %10s" % ("Account", "Amount", "Currency"))
 
@@ -234,10 +241,22 @@ def main(arguments):
         name = account.getName()
         balance = account.getBalance()
         currency = account.getCurrency()
-
         print("%-30s %10.2f %10s" % (name, balance, currency))
     print("")
-    print("Virtual balances")
+
+    print("Virtual account balances")
+    #print("")
+    print("%-30s %10s %10s" % ("Account", "Amount", "Currency"))
+
+    accounts = virtualAccountFactory.getAccounts()
+    for account in accounts:
+        name = account.getName()
+        balance = account.getBalance()
+        currency = account.getCurrency()
+        print("%-30s %10.2f %10s" % (name, balance, currency))
+    print("")
+
+    print("Virtual account balance differences")
     for account1 in accounts:
         for account2 in accounts:
             if account1.getCurrency() == account2.getCurrency():
