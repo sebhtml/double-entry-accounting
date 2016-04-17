@@ -48,20 +48,18 @@ class Transaction:
     def isBad(self):
         return self.bad
     def makeVirtualSelfTransaction(self):
-        prefix = "virtual:"
         transaction = copy.copy(self)
         transaction.amount = (1 - self.getModifier()) * self.getAmount()
         transaction.modifier = 1
-        transaction.destinationAccount = prefix + self.getSourceAccount() + ":self"
-        transaction.sourceAccount = prefix + self.getSourceAccount() + ""
+        transaction.destinationAccount = self.getSourceAccount() + "+expenses+self"
+        transaction.sourceAccount = self.getSourceAccount() + "+expenses"
         return transaction
     def makeVirtualOtherTransaction(self):
-        prefix = "virtual:"
         transaction = copy.copy(self)
         transaction.amount = self.getModifier() * self.getAmount()
         transaction.modifier = 1
-        transaction.destinationAccount = prefix + self.getSourceAccount() + ":other"
-        transaction.sourceAccount = prefix + self.getSourceAccount() + ""
+        transaction.destinationAccount = self.getSourceAccount() + "+expenses+not-self"
+        transaction.sourceAccount = self.getSourceAccount() + "+expenses"
         return transaction
 
 
@@ -265,13 +263,9 @@ def main(arguments):
                 currency = account1.getCurrency()
                 if name1 == name2:
                     continue
-		if not name1.find("virtual:") >= 0:
+		if not name1.find("+expenses+not-self") >= 0:
                     continue
-		if not name1.find(":other") >= 0:
-                    continue
-		if not name2.find("virtual:") >= 0:
-                    continue
-		if not name2.find(":other") >= 0:
+		if not name2.find("+expenses+not-self") >= 0:
                     continue
                 balance1 = account1.getBalance()
                 balance2 = account2.getBalance()
