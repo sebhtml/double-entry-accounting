@@ -1,18 +1,41 @@
-Transactions
+Accounts
 
-Account: bar        Currency: USD     Transactions: 3
+Account: bar
+    Currency: USD
+    Balance: -25000.0
+    Income: 0.0
+    Expenses: 25000.0
+    Expenses by beneficiary account
+        bar 12500.0
+        foo 12500.0
+    Transactions: 3
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
   2012-04-14      Payment 1- Bar       vendor-123                     bar                               6000.00        USD
   2012-09-17      Payment 2- Bar       vendor-123                     bar                              12000.00        USD
   2013-08-25      Payment 3- Bar       vendor-123                     bar                               7000.00        USD
 
-Account: foo        Currency: USD     Transactions: 3
+Account: foo
+    Currency: USD
+    Balance: -49326.12
+    Income: 0.0
+    Expenses: 49326.12
+    Expenses by beneficiary account
+        foo 24663.06
+        bar 24663.06
+    Transactions: 3
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
   2012-04-14      Payment 1- Foo       vendor-123                     foo                              31163.06        USD
   2012-09-17      Payment 2- Foo       vendor-123                     foo                               6581.53        USD
   2013-08-25      Payment 3- Foo       vendor-123                     foo                              11581.53        USD
 
-Account: vendor-123        Currency: USD     Transactions: 6
+Account: vendor-123
+    Currency: USD
+    Balance: 74326.12
+    Income: 74326.12
+    Expenses: 0.0
+    Expenses by beneficiary account
+        vendor-123 0.0
+    Transactions: 6
   Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
   2012-04-14      Payment 1- Foo       vendor-123                     foo                              31163.06        USD
   2012-04-14      Payment 1- Bar       vendor-123                     bar                               6000.00        USD
@@ -21,60 +44,5 @@ Account: vendor-123        Currency: USD     Transactions: 6
   2013-08-25      Payment 3- Foo       vendor-123                     foo                              11581.53        USD
   2013-08-25      Payment 3- Bar       vendor-123                     bar                               7000.00        USD
 
-Account: virtual:bar        Currency: USD     Transactions: 6
-  Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Bar       virtual:bar:self               virtual:bar                       3000.00        USD
-  2012-04-14      Payment 1- Bar       virtual:bar:other              virtual:bar                       3000.00        USD
-  2012-09-17      Payment 2- Bar       virtual:bar:self               virtual:bar                       6000.00        USD
-  2012-09-17      Payment 2- Bar       virtual:bar:other              virtual:bar                       6000.00        USD
-  2013-08-25      Payment 3- Bar       virtual:bar:self               virtual:bar                       3500.00        USD
-  2013-08-25      Payment 3- Bar       virtual:bar:other              virtual:bar                       3500.00        USD
-
-Account: virtual:bar:other        Currency: USD     Transactions: 3
-  Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Bar       virtual:bar:other              virtual:bar                       3000.00        USD
-  2012-09-17      Payment 2- Bar       virtual:bar:other              virtual:bar                       6000.00        USD
-  2013-08-25      Payment 3- Bar       virtual:bar:other              virtual:bar                       3500.00        USD
-
-Account: virtual:bar:self        Currency: USD     Transactions: 3
-  Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Bar       virtual:bar:self               virtual:bar                       3000.00        USD
-  2012-09-17      Payment 2- Bar       virtual:bar:self               virtual:bar                       6000.00        USD
-  2013-08-25      Payment 3- Bar       virtual:bar:self               virtual:bar                       3500.00        USD
-
-Account: virtual:foo        Currency: USD     Transactions: 6
-  Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Foo       virtual:foo:self               virtual:foo                      15581.53        USD
-  2012-04-14      Payment 1- Foo       virtual:foo:other              virtual:foo                      15581.53        USD
-  2012-09-17      Payment 2- Foo       virtual:foo:self               virtual:foo                       3290.76        USD
-  2012-09-17      Payment 2- Foo       virtual:foo:other              virtual:foo                       3290.76        USD
-  2013-08-25      Payment 3- Foo       virtual:foo:self               virtual:foo                       5790.77        USD
-  2013-08-25      Payment 3- Foo       virtual:foo:other              virtual:foo                       5790.77        USD
-
-Account: virtual:foo:other        Currency: USD     Transactions: 3
-  Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Foo       virtual:foo:other              virtual:foo                      15581.53        USD
-  2012-09-17      Payment 2- Foo       virtual:foo:other              virtual:foo                       3290.76        USD
-  2013-08-25      Payment 3- Foo       virtual:foo:other              virtual:foo                       5790.77        USD
-
-Account: virtual:foo:self        Currency: USD     Transactions: 3
-  Date            Description          DestinationAccount             SourceAccount                      Amount   Currency
-  2012-04-14      Payment 1- Foo       virtual:foo:self               virtual:foo                      15581.53        USD
-  2012-09-17      Payment 2- Foo       virtual:foo:self               virtual:foo                       3290.76        USD
-  2013-08-25      Payment 3- Foo       virtual:foo:self               virtual:foo                       5790.77        USD
-
-Balances
-Account                            Amount   Currency
-bar                             -25000.00        USD
-foo                             -49326.12        USD
-vendor-123                       74326.12        USD
-virtual:bar                     -25000.00        USD
-virtual:bar:other                12500.00        USD
-virtual:bar:self                 12500.00        USD
-virtual:foo                     -49326.12        USD
-virtual:foo:other                24663.06        USD
-virtual:foo:self                 24663.06        USD
-
-Balances
-balance(virtual:bar:other) - balance(virtual:foo:other) =  -12163.06        USD
-balance(virtual:foo:other) - balance(virtual:bar:other) =   12163.06        USD
+Differences
+balance(foo) - balance(bar) =   12163.06        USD

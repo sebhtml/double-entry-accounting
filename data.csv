@@ -1,8 +1,8 @@
-2012-04-14,Payment 1- Foo,vendor-123,foo,31163.06,USD,0.5,1
-2012-04-14,Payment 1- Bar,vendor-123,bar,6000,USD,0.5,1
-2012-09-17,Payment 2- Foo,vendor-123,foo,6581.53,USD,0.5,1
-2012-09-17,Payment 2- Bar,vendor-123,bar,12000,USD,0.5,1
-2013-08-25,Payment 3- Foo,vendor-123,foo,11581.53,USD,0.5,1
-2013-08-25,Payment 3- Bar,vendor-123,bar,7000,USD,0.5,1
+2012-04-14,Payment 1- Foo,vendor-123,foo,31163.06,USD,bar 0.5,1
+2012-04-14,Payment 1- Bar,vendor-123,bar,6000,USD,foo 0.5,1
+2012-09-17,Payment 2- Foo,vendor-123,foo,6581.53,USD,bar 0.5,1
+2012-09-17,Payment 2- Bar,vendor-123,bar,12000,USD,foo 0.5,1
+2013-08-25,Payment 3- Foo,vendor-123,foo,11581.53,USD,bar 0.5,1
+2013-08-25,Payment 3- Bar,vendor-123,bar,7000,USD,foo 0.5,1
 
 

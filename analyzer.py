@@ -17,9 +17,24 @@ class Transaction:
         self.sourceAccount = tokens[3]
         self.amount = float(tokens[4])
         self.currency = tokens[5]
-        self.modifier = float(tokens[6])
+        self.modifiers = []
+
+        selfModifier = 1.0
+        modifierTokens = tokens[6].split()
+        i = 0
+        while i < len(modifierTokens):
+            account = modifierTokens[i]
+            modifier = float(modifierTokens[i + 1])
+            if account != self.getSourceAccount():
+                self.modifiers.append([account, modifier])
+                selfModifier -= modifier
+            i += 2
+
+        self.modifiers.append([self.getSourceAccount(), selfModifier])
         self.approved = int(tokens[7])
         self.bad = False
+    def getModifiers(self):
+        return self.modifiers
     def getDate(self):
         return self.date
     def getDestinationAccount(self):
@@ -33,7 +48,7 @@ class Transaction:
     def getDescription(self):
         return self.description
     def getModifier(self):
-        return self.modifier
+        return self.modifiers[self.modifiers.keys()[0]]
     def isApproved(self):
         return self.approved
     def __str__(self):
@@ -47,27 +62,6 @@ class Transaction:
         return output
     def isBad(self):
         return self.bad
-    def makeVirtualSelfExpenseTransaction(self):
-        transaction = copy.copy(self)
-        transaction.amount = (1 - self.getModifier()) * self.getAmount()
-        transaction.modifier = 1
-        transaction.destinationAccount = self.getSourceAccount() + "+expenses+self"
-        transaction.sourceAccount = self.getSourceAccount() + "+expenses"
-        return transaction
-    def makeVirtualNotSelfExpenseTransaction(self):
-        transaction = copy.copy(self)
-        transaction.amount = self.getModifier() * self.getAmount()
-        transaction.modifier = 1
-        transaction.destinationAccount = self.getSourceAccount() + "+expenses+not-self"
-        transaction.sourceAccount = self.getSourceAccount() + "+expenses"
-        return transaction
-    def makeVirtualIncomeTransaction(self):
-        transaction = copy.copy(self)
-        transaction.modifier = 1
-        transaction.destinationAccount = self.getDestinationAccount() + "+income"
-        transaction.sourceAccount = self.getDestinationAccount() + "+income-source"
-        return transaction
-
 
 class TransactionFactory:
     def __init__(self):
@@ -79,15 +73,35 @@ class Account:
     def __init__(self, name, currency):
         self.name = name
         self.currency = currency
-        self.balance = 0
+        self.balance = 0.0
+        self.income = 0.0
+        self.expenses = 0.0
+        self.expensesForAccounts = {}
+        self.expensesForAccounts[self.getName()] = 0.0
         self.transactions = []
     def getTransactionCount(self):
         return len(self.getTransactions())
-    def printTransactions(self):
+    def printAccount(self):
         name = self.getName()
         currency = self.getCurrency()
         balance = self.getBalance()
-        print("Account: " + name + "    Balance: " + str(balance)+ "    Currency: " + currency + "    Transactions: " + str(self.getTransactionCount()))
+
+        print("Account: " + name)
+        print("    Currency: " + currency)
+        print("    Balance: " + str(balance))
+        print("    Income: " +  str(self.income))
+        print("    Expenses: " +  str(self.expenses))
+
+        print("    Expenses by beneficiary account")
+        expenses = self.expensesForAccounts[self.getName()]
+        print("        " + self.getName() + " " + str(expenses))
+        for account in self.expensesForAccounts.keys():
+            if account == self.getName():
+                continue
+            expenses = self.expensesForAccounts[account]
+            print("        " + account + " " + str(expenses))
+
+        print("    Transactions: " + str(self.getTransactionCount()))
 
         transactionString = "  %-15s %-20s %-30s %-30s %10s %10s"
         print(transactionString % ("Date", "Description", "DestinationAccount", "SourceAccount", "Amount", "Currency"))
@@ -103,19 +117,33 @@ class Account:
             print("Error: wrong currency")
             print(transaction)
             return
-        if transaction.getDestinationAccount() != self.getName() and transaction.getSourceAccount() != self.getName():
+        if transaction.getDestinationAccount() != self.getName() \
+           and transaction.getSourceAccount() != self.getName():
             print("Error: bad account")
             print(transaction)
             return
-        if transaction.getDestinationAccount() == transaction.getSourceAccount():
+        if transaction.getDestinationAccount() == \
+           transaction.getSourceAccount():
             print("Error: accounts are the same")
             print(transaction)
             return
         amount = transaction.getAmount()
         if transaction.getDestinationAccount() == self.getName():
             self.balance += amount
+            self.income += amount
         elif transaction.getSourceAccount() == self.getName():
             self.balance -= amount
+            self.expenses += amount
+            # add expenses for each modifier
+            modifiers = transaction.getModifiers()
+            for modifierPair in modifiers:
+                account = modifierPair[0]
+                modifier = modifierPair[1]
+                amountForNotSelf = modifier * amount
+
+                if account not in self.expensesForAccounts:
+                    self.expensesForAccounts[account] = 0.0
+                self.expensesForAccounts[account] += amountForNotSelf
         self.transactions.append(transaction)
     def getCurrency(self):
         return self.currency
@@ -125,6 +153,15 @@ class Account:
         return self.name
     def getTransactions(self):
         return self.transactions
+    def getIncome(self):
+        return self.income
+    def getExpenses(self):
+        return self.expenses
+    def getExpensesForAccount(self, account):
+        if account in self.expensesForAccounts:
+            expenses = self.expensesForAccounts[account]
+            return expenses
+        return 0.0
 
 class AccountFactory:
     def __init__(self):
@@ -164,7 +201,6 @@ def main(arguments):
 
     transactionFactory = TransactionFactory()
     accountFactory = AccountFactory()
-    virtualAccountFactory = AccountFactory()
 
     now = datetime.datetime.now()
     today = now.strftime("%Y-%m-%d")
@@ -184,88 +220,32 @@ def main(arguments):
 
     transactions = sorted(transactions, key=lambda transaction: transaction.getDate())
 
-    virtualTransactions = []
-    for transaction in transactions:
-        virtualSelfTransaction = transaction.makeVirtualSelfExpenseTransaction()
-        virtualTransactions.append(virtualSelfTransaction)
-
-        virtualOtherTransaction = transaction.makeVirtualNotSelfExpenseTransaction()
-        virtualTransactions.append(virtualOtherTransaction)
-
-        virtualIncomeTransaction = transaction.makeVirtualIncomeTransaction()
-        virtualTransactions.append(virtualIncomeTransaction)
-
-        #print("DEBUG " + str(transaction))
-        #processTransaction(transaction, virtualTransactions)
-
-    #oldCount = len(transactions)
-    #newCount = len(allTransactions)
-
-    #print("oldCount " + str(oldCount) + " newCount: " + str(newCount) + " expected: " + str(3 * oldCount))
-
-    #goodTransactions = 0
-
     addTransactions(transactions, accountFactory)
-    addTransactions(virtualTransactions, virtualAccountFactory)
-
-    print("Account transactions")
-    print("")
-    for account in accountFactory.getAccounts():
-        account.printTransactions()
-
-    print("Virtual account transactions")
-    print("")
-    for account in virtualAccountFactory.getAccounts():
-        account.printTransactions()
-
-    print("Account balances")
-    #print("")
-    print("%-30s %10s %10s" % ("Account", "Amount", "Currency"))
 
     accounts = accountFactory.getAccounts()
-    for account in accounts:
-        name = account.getName()
-        balance = account.getBalance()
-        currency = account.getCurrency()
-        print("%-30s %10.2f %10s" % (name, balance, currency))
+    print("Accounts")
     print("")
-
-    print("Virtual account balances")
-    #print("")
-    print("%-30s %10s %10s" % ("Account", "Amount", "Currency"))
-
-    accounts = virtualAccountFactory.getAccounts()
     for account in accounts:
-        name = account.getName()
-        balance = account.getBalance()
-        currency = account.getCurrency()
-        print("%-30s %10.2f %10s" % (name, balance, currency))
-    print("")
+        account.printAccount()
 
-    print("Virtual account balance differences")
+    print("Differences")
     for account1 in accounts:
         for account2 in accounts:
-            if account1.getCurrency() == account2.getCurrency():
-                name1 = account1.getName()
-                name2 = account2.getName()
-                currency = account1.getCurrency()
-                if name1 == name2:
-                    continue
-		if not name1.find("+expenses+not-self") >= 0:
-                    continue
-		if not name2.find("+expenses+not-self") >= 0:
-                    continue
-                balance1 = account1.getBalance()
-                balance2 = account2.getBalance()
-                metaBalance = balance1 - balance2
+            if account1.getCurrency() != account2.getCurrency():
+                continue
+            name1 = account1.getName()
+            name2 = account2.getName()
+            currency = account1.getCurrency()
+            if name1 == name2:
+                continue
+            balance1 = account1.getExpensesForAccount(name2)
+            balance2 = account2.getExpensesForAccount(name1)
+            metaBalance = balance1 - balance2
 
-                if metaBalance >= 50000:
-                    continue
-                if metaBalance < 0:
-                    continue
-                if metaBalance == 0.00:
-                    continue
-                print("balance(%s) - balance(%s) = %10.2f %10s" % (name1, name2, metaBalance, currency))
-
+            if metaBalance < 0:
+                continue
+            if metaBalance == 0.00:
+                continue
+            print("balance(%s) - balance(%s) = %10.2f %10s" % (name1, name2, metaBalance, currency))
 
 main(sys.argv)
