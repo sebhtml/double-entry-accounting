@@ -194,23 +194,50 @@ def addTransactions(transactions, factory):
 class LedgerConvertor:
     def __init__(self):
         pass
+
+    def writeLedgerTransaction(self, account, amount, currency, stream):
+        format = "    %-10s %10.2f %s\n"
+        text = format % \
+               (account, amount, currency)
+        stream.write(text)
+
     def write(self, transaction, stream):
+
+        currency = transaction.getCurrency()
+
         text = "%s %s\n" % \
                (transaction.getDate(),
                 transaction.getDescription())
         stream.write(text)
 
-        format = "    %-10s %10.2f %s\n"
-        text = format % \
-               (transaction.getDestinationAccount(),
+        self.writeLedgerTransaction(
+               transaction.getDestinationAccount(),
                 transaction.getAmount(),
-                transaction.getCurrency())
-        stream.write(text)
+                transaction.getCurrency(), stream
+        )
 
-        text = format % \
-               (transaction.getSourceAccount(),
+        self.writeLedgerTransaction(
+               transaction.getSourceAccount(),
                 -transaction.getAmount(),
-                transaction.getCurrency())
-        stream.write(text)
+                transaction.getCurrency(), stream
+        )
 
+        sourceAccount = transaction.getSourceAccount()
+
+        for modifier in transaction.getModifiers():
+            beneficiaryAccount = modifier[0]
+
+            if beneficiaryAccount == sourceAccount:
+                continue
+
+            ratio = modifier[1]
+            beneficiaryAmount = transaction.getAmount()  * ratio
+
+            account1 = sourceAccount + ":Receivables:" + beneficiaryAccount
+            account2 = beneficiaryAccount + ":Payables:" + sourceAccount
+
+            self.writeLedgerTransaction(
+                account1, beneficiaryAmount, currency, stream)
+            self.writeLedgerTransaction(
+                account2, -beneficiaryAmount, currency, stream)
         stream.write("\n")
