@@ -18,6 +18,9 @@ def main():
 
         transaction = Transaction(line)
 
+        if not transaction.isApproved():
+            continue
+
         stream = sys.stdout
 
         convertor.write(transaction, stream)

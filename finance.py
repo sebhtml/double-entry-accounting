@@ -233,8 +233,8 @@ class LedgerConvertor:
             ratio = modifier[1]
             beneficiaryAmount = transaction.getAmount()  * ratio
 
-            account1 = sourceAccount + ":Receivables:" + beneficiaryAccount
-            account2 = beneficiaryAccount + ":Payables:" + sourceAccount
+            account1 = sourceAccount + "-Receivables-" + beneficiaryAccount
+            account2 = beneficiaryAccount + "-Payables-" + sourceAccount
 
             self.writeLedgerTransaction(
                 account1, beneficiaryAmount, currency, stream)
