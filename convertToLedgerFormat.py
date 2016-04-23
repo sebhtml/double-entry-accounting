@@ -13,6 +13,9 @@ def main():
         if len(line) == 0:
             continue
 
+        if line[0] == "#":
+            continue
+
         transaction = Transaction(line)
 
         stream = sys.stdout
