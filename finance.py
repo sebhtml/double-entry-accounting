@@ -196,7 +196,7 @@ class LedgerConvertor:
         pass
 
     def writeLedgerTransaction(self, account, amount, currency, stream):
-        format = "    %-10s %10.8f %s\n"
+        format = "    %-10s %10.4f %s\n"
         text = format % \
                (account, amount, currency)
         stream.write(text)
